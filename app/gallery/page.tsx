@@ -1,4 +1,19 @@
 // app/gallery/page.tsx
+// app/gallery/page.tsx
+import { Metadata } from 'next'   // ← ADD THIS LINE
+import { createClient } from '@/lib/supabase/server'
+import GalleryGrid from '@/components/GalleryGrid'
+
+export const metadata: Metadata = {
+  title: 'Gallery | Arteon',   // Fixed typo from "Arteen" to "Arteon"
+  description: 'Browse original artworks and studies. Paintings, drawings, and mixed media.',
+}
+
+export const revalidate = 3600
+
+export default async function GalleryPage() {
+  // ... rest of your code
+}
 export const metadata: Metadata = {
     title: 'Gallery | Arteon',
     description: 'Browse original artworks and studies. Paintings, drawings, and mixed media.',
