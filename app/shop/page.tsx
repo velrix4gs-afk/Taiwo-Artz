@@ -1,4 +1,5 @@
 // app/shop/page.tsx
+import { Metadata } from 'next'
 export const metadata: Metadata = {
     title: 'Shop Prints | Arteon',
     description: 'Limited edition fine art prints. Archival quality, ready to frame.',
