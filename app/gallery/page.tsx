@@ -1,4 +1,3 @@
-// app/gallery/page.tsx
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import GalleryGrid from '@/components/GalleryGrid'
