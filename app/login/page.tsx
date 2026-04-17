@@ -85,6 +85,9 @@ export default function LoginPage() {
                 </svg>
                 Continue with Google
             </button>
+            <p className="text-xs text-gray-500 mt-1">
+                New here? Enter your email and we'll send a magic link to sign you in or create an account.
+            </p>
 
             {message && (
                 <div className="mt-4 p-3 bg-emerald-50 text-emerald-800 rounded-xl text-sm">

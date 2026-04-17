@@ -7,6 +7,11 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function submitCommission(formData: FormData) {
+    const supabase = await createClient()
+
+    // Get current user (if logged in)
+    const { data: { user } } = await supabase.auth.getUser()
+
     const name = formData.get('name') as string
     const email = formData.get('email') as string
     const description = formData.get('description') as string
@@ -17,12 +22,11 @@ export async function submitCommission(formData: FormData) {
         return { success: false, error: 'Name, email and description are required' }
     }
 
-    const supabase = await createClient()
-
-    // Insert into Supabase
+    // Insert commission into Supabase
     const { error: dbError } = await supabase
         .from('commissions')
         .insert({
+            user_id: user?.id || null, // associate with logged-in user if exists
             full_name: name,
             email,
             description,
@@ -33,13 +37,13 @@ export async function submitCommission(formData: FormData) {
 
     if (dbError) {
         console.error('DB error:', dbError)
-        return { success: false, error: 'Failed to save request' }
+        return { success: false, error: 'Failed to save commission request' }
     }
 
-    // Send email notification to artist
+    // Send email notification to artist (optional)
     try {
         await resend.emails.send({
-            from: 'Arteon Commissions <onboarding@resend.dev>',
+            from: 'Arteon Commissions <onboarding@resend.dev>', // Replace with your verified domain
             to: 'velrix4gs@gmail.com', // ← REPLACE WITH YOUR REAL EMAIL
             subject: `New commission request from ${name}`,
             replyTo: email,
@@ -51,11 +55,14 @@ export async function submitCommission(formData: FormData) {
         <p><strong>Timeline:</strong> ${timeline || 'Not specified'}</p>
         <p><strong>Description:</strong></p>
         <p>${description.replace(/\n/g, '<br>')}</p>
+        ${user ? `<p><strong>User ID:</strong> ${user.id}</p>` : '<p><em>Guest submission</em></p>'}
+        <hr>
+        <p><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/admin/commissions">View in admin dashboard</a></p>
       `
         })
     } catch (emailError) {
-        console.error('Email failed:', emailError)
-        // Still return success even if email fails
+        console.error('Email failed to send:', emailError)
+        // Still return success; email failure shouldn't block the submission
     }
 
     return { success: true }
