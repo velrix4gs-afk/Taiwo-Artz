@@ -18,10 +18,9 @@ type Artwork = {
 export default function ShopGrid({ artworks }: { artworks: Artwork[] }) {
     const { addToCart } = useCart()
 
-    const handleAddPrint = (artwork: Artwork) => {
+    const handleAddPrint = async (artwork: Artwork) => {
         if (!artwork.print_price) return
-        addToCart({
-            id: `print-${artwork.id}`,
+        await addToCart({
             title: `${artwork.title} (Print)`,
             price: artwork.print_price,
             image_url: artwork.image_url,

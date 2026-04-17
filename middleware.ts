@@ -30,20 +30,26 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    // Refresh session if expired - required for Server Components
-    await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Define protected routes
+    const protectedPaths = ['/shop', '/commission', '/checkout', '/account', '/admin']
+    const isProtectedPath = protectedPaths.some(path =>
+        request.nextUrl.pathname.startsWith(path)
+    )
+
+    // If user is not logged in and trying to access protected route, redirect to login
+    if (!user && isProtectedPath) {
+        const redirectUrl = new URL('/login', request.url)
+        redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
+        return NextResponse.redirect(redirectUrl)
+    }
 
     return supabaseResponse
 }
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         */
         '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 }
